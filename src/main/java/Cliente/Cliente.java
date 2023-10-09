@@ -196,9 +196,7 @@ public class Cliente extends javax.swing.JFrame {
         String sintomasTexto = txtSintomas.getText();
         String diagnostico = txtDiagnostico.getText();
         List<String> sintomas = new ArrayList<>();
-        for (String sintoma : sintomasTexto.split(", ")) {
-            sintomas.add(sintoma);
-        }
+        sintomas.addAll(Arrays.asList(sintomasTexto.split(", ")));
 
         Consulta consulta = new Consulta(sintomas, diagnostico);
 
@@ -228,12 +226,15 @@ public class Cliente extends javax.swing.JFrame {
 
     private void btnAutomaticoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAutomaticoActionPerformed
         // TODO add your handling code here:
+        String sintomasTexto = txtSintomas.getText();
+        
         try {
             conectarAoServidor();
             out.writeObject("DIAGNOSTICO_AUTOMATICO");
             
             
-            List<String> sintomas = Arrays.asList(txtSintomas.getText().split(","));
+            List<String> sintomas = new ArrayList<>();
+            sintomas.addAll(Arrays.asList(sintomasTexto.split(", ")));
 
             out.writeObject(sintomas);
 

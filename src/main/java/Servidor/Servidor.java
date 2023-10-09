@@ -31,7 +31,6 @@ public class Servidor {
 
             while (true) {
                 Socket clienteSocket = servidorSocket.accept();
-                System.out.println("Cliente conectado");
 
                 Thread thread = new Thread(new ClienteHandler(clienteSocket));
                 thread.start();
@@ -68,7 +67,6 @@ public class Servidor {
                 } else {
                     Consulta consulta = (Consulta) request;
                     consultas.add(consulta);
-                    System.out.println("Consulta médica recebida e armazenada.");
                     out.writeObject("Consulta médica recebida com sucesso.");
                 }
             } catch (IOException | ClassNotFoundException e) {
@@ -82,13 +80,11 @@ public class Servidor {
     // Crie uma lista de transações a partir da lista de sintomas
     List<Transaction> transactions = new ArrayList<>();
     List<String> itensDiagnostico = new ArrayList<>();
-    for (String sintoma : sintomas) {
         for (Consulta consulta :  consultas) {
-            if (consulta.getSintomas().contains(sintoma)) {
+            if (consulta.getSintomas().containsAll(sintomas)) {
                 itensDiagnostico.add(consulta.getDiagnostico());
             }
         }
-    }
     transactions.add(new Transaction(itensDiagnostico));
 
     Apriori apriori = new Apriori(transactions);
