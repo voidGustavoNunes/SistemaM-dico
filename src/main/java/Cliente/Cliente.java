@@ -73,10 +73,15 @@ public class Cliente extends javax.swing.JFrame {
     }
 
     private void exibirConsultas(List<Consulta> consultas) {
-        StringBuilder sb = new StringBuilder("Consultas Médicas Armazenadas:\n");
-        for (Consulta consulta : consultas) {
-            sb.append("Sintomas: ").append(consulta.getSintomas()).append("\n");
-            sb.append("Diagnóstico: ").append(consulta.getDiagnostico()).append("\n\n");
+        StringBuilder sb = new StringBuilder();
+        if (consultas.isEmpty()) {
+            sb.append("Não há Consultas Médicas Armazenadas.");
+        } else {
+            sb.append("Consultas Médicas Armazenadas:\n");
+            for (Consulta consulta : consultas) {
+                sb.append("Sintomas: ").append(consulta.getSintomas()).append("\n");
+                sb.append("Diagnóstico: ").append(consulta.getDiagnostico()).append("\n\n");
+            }
         }
         txtListagem.setText(sb.toString());
     }
@@ -84,7 +89,7 @@ public class Cliente extends javax.swing.JFrame {
     private void exibirDiagnosticos(List<String> diagnosticosAutomaticos) {
     StringBuilder sb = new StringBuilder();
     if (diagnosticosAutomaticos.isEmpty()) {
-        sb.append("Não há diagnósticos frequentes para os sintomas inseridos.");
+        sb.append("Não há Diagnósticos Frequentes para os sintomas inseridos.");
     } else {
         for (String diagnostico : diagnosticosAutomaticos) {
             sb.append(diagnostico).append("\n");
@@ -195,19 +200,24 @@ public class Cliente extends javax.swing.JFrame {
         // Código para criar um novo socket e enviar uma consulta médica
         String sintomasTexto = txtSintomas.getText();
         String diagnostico = txtDiagnostico.getText();
-        List<String> sintomas = new ArrayList<>();
-        sintomas.addAll(Arrays.asList(sintomasTexto.split(", ")));
+        
+        if (!sintomasTexto.isBlank() && !diagnostico.isBlank()) {
+            List<String> sintomas = new ArrayList<>();
+            sintomas.addAll(Arrays.asList(sintomasTexto.split(", ")));
 
-        Consulta consulta = new Consulta(sintomas, diagnostico);
+            Consulta consulta = new Consulta(sintomas, diagnostico);
 
-        try {
-            conectarAoServidor();
-            out.writeObject(consulta);
-            String resposta = (String) in.readObject();
-            JOptionPane.showMessageDialog(this, resposta);
-            fecharConexao();
-        } catch (IOException | ClassNotFoundException ex) {
-            ex.printStackTrace();
+            try {
+                conectarAoServidor();
+                out.writeObject(consulta);
+                String resposta = (String) in.readObject();
+                JOptionPane.showMessageDialog(this, resposta);
+                fecharConexao();
+            } catch (IOException | ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            txtListagem.setText("Preencha todos os campos!");
         }
     }//GEN-LAST:event_btnEnviarActionPerformed
 
@@ -228,25 +238,27 @@ public class Cliente extends javax.swing.JFrame {
         // TODO add your handling code here:
         String sintomasTexto = txtSintomas.getText();
         
-        try {
-            conectarAoServidor();
-            out.writeObject("DIAGNOSTICO_AUTOMATICO");
-            
-            
-            List<String> sintomas = new ArrayList<>();
-            sintomas.addAll(Arrays.asList(sintomasTexto.split(", ")));
+        if (!sintomasTexto.isBlank()) {
+            try {
+                conectarAoServidor();
+                out.writeObject("DIAGNOSTICO_AUTOMATICO");
 
-            out.writeObject(sintomas);
 
-            List<String> diagnosticosAutomaticos = (List<String>) in.readObject();
+                List<String> sintomas = new ArrayList<>();
+                sintomas.addAll(Arrays.asList(sintomasTexto.split(", ")));
 
-            exibirDiagnosticos(diagnosticosAutomaticos);
+                out.writeObject(sintomas);
 
-            fecharConexao();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+                List<String> diagnosticosAutomaticos = (List<String>) in.readObject();
+
+                exibirDiagnosticos(diagnosticosAutomaticos);
+
+                fecharConexao();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }//GEN-LAST:event_btnAutomaticoActionPerformed
 
