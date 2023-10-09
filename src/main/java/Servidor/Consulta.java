@@ -5,32 +5,27 @@
 package Servidor;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *
- * @author Gustavo
+ * @author CONEXOS
  */
-public class Consulta implements Serializable{
-    private Sintoma[] sintomas;
+public class Consulta implements Serializable {
+
+    private List<String> sintomas;
     private String diagnostico;
 
-    public Consulta() {
-    }
-
-    public Sintoma[] getSintomas() {
-        return sintomas;
-    }
-
-    public void setSintomas(Sintoma[] sintomas) {
+    public Consulta(List<String> sintomas, String diagnostico) {
         this.sintomas = sintomas;
+        this.diagnostico = diagnostico;
+    }
+
+    public List<String> getSintomas() {
+        return sintomas;
     }
 
     public String getDiagnostico() {
         return diagnostico;
     }
-
-    public void setDiagnostico(String diagnostico) {
-        this.diagnostico = diagnostico;
-    }
-    
 }
