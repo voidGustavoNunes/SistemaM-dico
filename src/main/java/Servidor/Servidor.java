@@ -10,6 +10,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -56,19 +58,17 @@ public class Servidor {
                 Object request = in.readObject();
 
                 if (request instanceof String && ((String) request).equals("LISTAR_CONSULTAS")) {
-                    // Se o cliente solicitar listar as consultas
-                    out.writeObject(consultas); // Envie a lista de consultas de volta para o cliente
+                    out.writeObject(consultas);
                 } else if (request instanceof String && ((String) request).equals("DIAGNOSTICO_AUTOMATICO")) {
-                    // Tratamento da solicitação do cliente para diagnóstico automático
-                    List<String> diagnosticos = realizarDiagnosticoAutomatico();
-                    out.writeObject(diagnosticos);
+                    List<String> sintomas = (List<String>) in.readObject();
+
+                    List<String> diagnosticosAutomaticos = realizarDiagnosticoAutomatico(sintomas);
+
+                    out.writeObject(diagnosticosAutomaticos);
                 } else {
-                    // Caso contrário, trata como uma consulta médica normal
                     Consulta consulta = (Consulta) request;
                     consultas.add(consulta);
                     System.out.println("Consulta médica recebida e armazenada.");
-
-                    // Aqui você pode adicionar lógica para diagnóstico automático usando o algoritmo Apriori, se necessário.
                     out.writeObject("Consulta médica recebida com sucesso.");
                 }
             } catch (IOException | ClassNotFoundException e) {
@@ -77,29 +77,46 @@ public class Servidor {
         }
     }
 
-    // Função para realizar diagnóstico automático com Apriori
-    private static List<String> realizarDiagnosticoAutomatico() {
-        // 1. Analisar as consultas armazenadas e preparar os dados
-        List<Transaction> transactions = new ArrayList<>();
-        for (Consulta consulta : consultas) {
-            List<String> sintomasDiagnostico = new ArrayList<>(consulta.getSintomas());
-            sintomasDiagnostico.add(consulta.getDiagnostico());
-            transactions.add(new Transaction(sintomasDiagnostico));
+    private static List<String> realizarDiagnosticoAutomatico(List<String> sintomas) {
+
+    // Crie uma lista de transações a partir da lista de sintomas
+    List<Transaction> transactions = new ArrayList<>();
+    List<String> itensDiagnostico = new ArrayList<>();
+    for (String sintoma : sintomas) {
+        for (Consulta consulta :  consultas) {
+            if (consulta.getSintomas().contains(sintoma)) {
+                itensDiagnostico.add(consulta.getDiagnostico());
+            }
         }
-
-        // 2. Executar o algoritmo Apriori
-        Apriori apriori = new Apriori(transactions);
-        List<List<String>> frequentItemSets = apriori.findFrequentItemSets();
-
-        // 3. Gerar diagnósticos automáticos
-        List<String> diagnosticosAutomaticos = new ArrayList<>();
-        for (List<String> frequentItemSet : frequentItemSets) {
-//            if (frequentItemSet.size() > 1) {;
-                // O frequentItemSet contém diagnósticos associados a sintomas
-                diagnosticosAutomaticos.add("Diagnóstico automático: " + frequentItemSet);
-//            }
-        }
-
-        return diagnosticosAutomaticos;
     }
+    transactions.add(new Transaction(itensDiagnostico));
+
+    Apriori apriori = new Apriori(transactions);
+
+    List<List<String>> frequentItemSets = apriori.findFrequentItemSets();
+
+    List<String> diagnosticosAutomaticos = new ArrayList<>();
+    for (List<String> frequentItemSet : frequentItemSets) {
+        String diagnosticoMaisFrequente = "";
+        int count = 0;
+        for (String diagnostico : frequentItemSet) {
+            int countDiagnostico = 0;
+            for (Transaction transaction : transactions) {
+                if (transaction.contains(diagnostico)) {
+                    countDiagnostico++;
+                }
+            }
+            if (countDiagnostico > count) {
+                count = countDiagnostico;
+                diagnosticoMaisFrequente = diagnostico;
+            }
+            
+        }
+
+        diagnosticosAutomaticos.add(diagnosticoMaisFrequente);
+    }
+
+    return diagnosticosAutomaticos;
+}
+
 }

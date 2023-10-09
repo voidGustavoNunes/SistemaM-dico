@@ -5,6 +5,7 @@
 package Servidor;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -21,11 +22,21 @@ public class Consulta implements Serializable {
         this.diagnostico = diagnostico;
     }
 
+    public Consulta() { }
+
     public List<String> getSintomas() {
         return sintomas;
     }
 
     public String getDiagnostico() {
         return diagnostico;
+    }
+
+    public void setSintomas(List<String> sintomas) {
+        this.sintomas = sintomas;
+    }
+
+    public void setDiagnostico(String diagnostico) {
+        this.diagnostico = diagnostico;
     }
 }

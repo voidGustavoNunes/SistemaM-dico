@@ -21,6 +21,10 @@ public class Transaction {
     public List<String> getItems() {
         return items;
     }
+
+    public boolean contains(String item) {
+        return items.contains(item);
+    }
     
     public boolean containsAllItems(List<String> candidate) {
         return items.containsAll(candidate);

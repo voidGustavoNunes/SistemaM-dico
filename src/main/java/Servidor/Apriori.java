@@ -15,42 +15,32 @@ public class Apriori {
     }
 
     public List<List<String>> findFrequentItemSets() {
-        // Inicialize um conjunto para armazenar os itens frequentes
         List<List<String>> frequentItemSets = new ArrayList<>();
 
-        // Encontre todos os itens únicos nos dados de transação
         Set<String> uniqueItems = new HashSet<>();
         for (Transaction transaction : transactions) {
             uniqueItems.addAll(transaction.getItems());
         }
 
-        // Converta os itens únicos em uma lista
         List<String> allItems = new ArrayList<>(uniqueItems);
 
-        // Comece com conjuntos de tamanho 1 (itens individuais)
         int itemSetSize = 1;
 
-        // Inicialize frequentItemSets com os itens únicos
         for (String item : allItems) {
             frequentItemSets.add(Collections.singletonList(item));
         }
 
         while (true) {
-            // Gere candidatos para conjuntos de tamanho (itemSetSize + 1)
             List<List<String>> candidateItemSets = generateCandidateItemSets(frequentItemSets, itemSetSize, allItems);
 
-            // Conte a frequência de cada candidato nos dados de transação
             List<List<String>> frequentCandidates = countFrequentCandidates(candidateItemSets);
 
             if (frequentCandidates.isEmpty()) {
-                // Se não houver conjuntos frequentes de tamanho (itemSetSize + 1), pare
                 break;
             }
 
-            // Adicione os conjuntos frequentes de tamanho (itemSetSize + 1) à lista de conjuntos frequentes
             frequentItemSets.addAll(frequentCandidates);
 
-            // Aumente o tamanho do conjunto para a próxima iteração
             itemSetSize++;
         }
 
@@ -72,9 +62,12 @@ public class Apriori {
                 // Verifique se os primeiros (itemSetSize - 1) itens são os mesmos
                 boolean canJoin = true;
                 for (int k = 0; k < itemSetSize - 1; k++) {
-                    if (!itemSet1.get(k).equals(itemSet2.get(k))) {
+                    if (itemSetSize <= itemSet1.size() && itemSetSize <= itemSet2.size()) {
+    // O tamanho de itemSet1 e itemSet2 é suficiente para acessar o índice k
+                        if (!itemSet1.get(k).equals(itemSet2.get(k))) {
                         canJoin = false;
                         break;
+                        }
                     }
                 }
 

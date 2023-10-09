@@ -11,6 +11,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -78,13 +81,17 @@ public class Cliente extends javax.swing.JFrame {
         txtListagem.setText(sb.toString());
     }
 
-    private void exibirDiagnosticos(List<String> diagnosticos) {
-        StringBuilder sb = new StringBuilder("Diagnósticos Automáticos:\n");
-        for (String diagnostico : diagnosticos) {
+    private void exibirDiagnosticos(List<String> diagnosticosAutomaticos) {
+    StringBuilder sb = new StringBuilder();
+    if (diagnosticosAutomaticos.isEmpty()) {
+        sb.append("Não há diagnósticos frequentes para os sintomas inseridos.");
+    } else {
+        for (String diagnostico : diagnosticosAutomaticos) {
             sb.append(diagnostico).append("\n");
         }
-        txtListagem.setText(sb.toString());
     }
+    txtListagem.setText(sb.toString());
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -223,12 +230,22 @@ public class Cliente extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             conectarAoServidor();
-            out.writeObject("DIAGNOSTICO_AUTOMATICO"); // Enviar solicitação de diagnóstico automático
-            List<String> diagnosticos = (List<String>) in.readObject();
-            exibirDiagnosticos(diagnosticos); // Exibir diagnósticos no JTextArea
+            out.writeObject("DIAGNOSTICO_AUTOMATICO");
+            
+            
+            List<String> sintomas = Arrays.asList(txtSintomas.getText().split(","));
+
+            out.writeObject(sintomas);
+
+            List<String> diagnosticosAutomaticos = (List<String>) in.readObject();
+
+            exibirDiagnosticos(diagnosticosAutomaticos);
+
             fecharConexao();
-        } catch (IOException | ClassNotFoundException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnAutomaticoActionPerformed
 
